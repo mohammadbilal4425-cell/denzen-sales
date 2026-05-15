@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denzen Sales Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --surface2: #1c1c26;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0f0f5;
+  --muted: #8888a0;
+  --green: #22c97a;
+  --green-dim: rgba(34,201,122,0.12);
+  --amber: #f0a500;
+  --amber-dim: rgba(240,165,0,0.12);
+  --red: #f05050;
+  --red-dim: rgba(240,80,80,0.12);
+  --blue: #5b9cf6;
+  --blue-dim: rgba(91,156,246,0.12);
+  --accent: #22c97a;
+  --font: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.page { display: none; min-height: 100vh; }
+.page.active { display: flex; flex-direction: column; }
+
+/* LOGIN */
+.login-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+.logo-block {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.logo-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--green-dim);
+  border: 1px solid var(--green);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 24px;
+}
+.logo-block h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.logo-block p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+select, input[type="password"], input[type="number"], input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+select:focus, input:focus { border-color: var(--accent); }
+select option { background: #1c1c26; }
+.btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--green); color: #000; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text);
+}
+.btn-ghost:hover { background: var(--surface2); }
+.btn-danger {
+  background: transparent;
+  border: 1px solid rgba(240,80,80,0.4);
+  color: var(--red);
+}
+.err-msg {
+  font-size: 12px;
+  color: var(--red);
+  text-align: center;
+  margin-top: 8px;
+  display: none;
+}
+.hint {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* TOPBAR */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.topbar-left { display: flex; flex-direction: column; }
+.topbar-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.topbar-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.topbar-btn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+}
+.topbar-btn:hover { color: var(--text); border-color: var(--border2); }
+
+/* CONTENT */
+.content { flex: 1; padding: 16px; max-width: 480px; width: 100%; margin: 0 auto; }
+
+/* SECTION */
+.sec-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+.sec-label:first-child { margin-top: 0; }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.card-row:last-child { border-bottom: none; padding-bottom: 0; }
+.card-row:first-child { padding-top: 0; }
+.row-label { font-size: 13px; color: var(--muted); }
+.row-value { font-size: 13px; font-weight: 500; color: var(--text); }
+
+/* METRICS GRID */
+.metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+.metric-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.metric-value { font-size: 20px; font-weight: 600; font-family: var(--mono); }
+.metric-sub { font-size: 11px; margin-top: 3px; }
+.c-green { color: var(--green); }
+.c-amber { color: var(--amber); }
+.c-red { color: var(--red); }
+.c-blue { color: var(--blue); }
+.c-muted { color: var(--muted); }
+
+/* BADGE */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.badge-green { background: var(--green-dim); color: var(--green); }
+.badge-amber { background: var(--amber-dim); color: var(--amber); }
+.badge-red { background: var(--red-dim); color: var(--red); }
+.badge-blue { background: var(--blue-dim); color: var(--blue); }
+
+/* PROGRESS */
+.prog-block { margin-bottom: 14px; }
+.prog-block:last-child { margin-bottom: 0; }
+.prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.prog-name { font-size: 12px; color: var(--text); }
+.prog-pct { font-size: 12px; font-family: var(--mono); color: var(--muted); }
+.prog-bg {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.prog-note { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* EMPLOYEE ROWS */
+.emp-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.emp-item:last-child { border-bottom: none; }
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.emp-info { flex: 1; min-width: 0; }
+.emp-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.emp-bar-wrap { margin-top: 5px; }
+.emp-stats { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* FORM */
+.form-field { margin-bottom: 12px; }
+.form-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 5px;
+}
+.warn-box {
+  background: var(--amber-dim);
+  border: 1px solid rgba(240,165,0,0.3);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--amber);
+  margin-top: 8px;
+  display: none;
+}
+
+/* TOTAL ROW */
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--border2);
+  margin-top: 6px;
+}
+.total-label { font-size: 14px; font-weight: 500; }
+.total-value { font-size: 18px; font-weight: 600; font-family: var(--mono); color: var(--green); }
+
+.sep { height: 1px; background: var(--border); margin: 16px 0; }
+.spacer { height: 2rem; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="page active">
+  <div class="login-wrap">
+    <div class="logo-block">
+      <div class="logo-icon">💻</div>
+      <h1>Denzen Computers</h1>
+      <p>Sales tracker — team dashboard</p>
+    </div>
+    <div class="login-card">
+      <div class="field">
+        <label>Apna naam select karo</label>
+        <select id="loginUser">
+          <option value="">— Select karo —</option>
+          <option value="admin">Yousuf (Admin)</option>
+          <option value="daniyal">Daniyal</option>
+          <option value="waqas">Waqas</option>
+          <option value="asher">Asher</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>PIN</label>
+        <input type="password" id="loginPin" placeholder="4-digit PIN" maxlength="4" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">Login karo →</button>
+      <div class="err-msg" id="loginErr">Galat PIN — dobara try karo</div>
+    </div>
+    <div class="hint">Pehli baar: Admin PIN 0000 | Employees PIN 1111</div>
+  </div>
+</div>
+
+<!-- ADMIN PAGE -->
+<div id="adminPage" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Admin panel</div>
+      <div class="topbar-sub">Yousuf — Denzen Computers</div>
+    </div>
+    <button class="topbar-btn" onclick="logout()">Logout</button>
+  </div>
+  <div class="content">
+    <div class="sec-label">Team overview</div>
+    <div class="card" id="teamOverview"></div>
+
+    <div class="sec-label">Sales entry</div>
+    <div class="card">
+      <div class="form-field">
+        <label>Employee</label>
+        <select id="entryEmp">
+          <option value="">— Select karo —</option>
+          <option value="daniyal">Daniyal</option>
+          <option value="waqas">Waqas</option>
+          <option value="asher">Asher</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Actual sale (Rs)</label>
+        <input type="number" id="entryActual" placeholder="e.g. 1350000" />
+      </div>
+      <div class="form-field">
+        <label>WATI expected total (Rs)</label>
+        <input type="number" id="entryWati" placeholder="e.g. 1600000" />
+      </div>
+      <div class="form-field">
+        <label>Saste laptops (%) — WATI rate se neeche</label>
+        <input type="number" id="entryCheap" placeholder="0–100" min="0" max="100" />
+      </div>
+      <div class="form-field">
+        <label>Month ke kitne din gaye</label>
+        <input type="number" id="entryDays" placeholder="e.g. 18" min="1" max="31" />
+      </div>
+      <button class="btn btn-primary" onclick="saveEntry()" style="margin-top:4px">Save karo</button>
+      <div id="saveMsg" style="font-size:12px;color:var(--green);text-align:center;margin-top:8px;display:none">✓ Saved — employee ka dashboard update ho gaya</div>
+    </div>
+
+    <div class="sec-label">Month end</div>
+    <div class="card">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Naya mahina shuru karne ke liye sab employees ka data reset karo.</p>
+      <button class="btn btn-danger" onclick="resetMonth()">Naya mahina — sab reset karo</button>
+    </div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- EMPLOYEE PAGE -->
+<div id="empPage" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="empNameTop">—</div>
+      <div class="topbar-sub">Sales dashboard</div>
+    </div>
+    <button class="topbar-btn" onclick="logout()">Logout</button>
+  </div>
+  <div class="content">
+    <div class="sec-label">Is mahine ki performance</div>
+    <div class="metrics" id="empMetrics"></div>
+
+    <div class="card" id="empBars"></div>
+
+    <div class="sec-label">Estimated kamai</div>
+    <div class="card" id="empEarnings"></div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<script>
+const PINS = { admin: '0000', daniyal: '1111', waqas: '1111', asher: '1111' };
+const NAMES = { admin: 'Yousuf (Admin)', daniyal: 'Daniyal', waqas: 'Waqas', asher: 'Asher' };
+const AV_BG = { daniyal: '#1a2a3a', waqas: '#1a2e1a', asher: '#2e2a1a' };
+const AV_COL = { daniyal: '#5b9cf6', waqas: '#22c97a', asher: '#f0a500' };
+const INITIALS = { daniyal: 'DA', waqas: 'WQ', asher: 'AS' };
+const MILESTONES = [
+  { t: 1500000, b: 75000 }, { t: 1800000, b: 105000 },
+  { t: 2100000, b: 140000 }, { t: 2400000, b: 180000 },
+  { t: 2700000, b: 230000 }, { t: 3000000, b: 270000 }
+];
+const MIN_T = 1500000;
+
+function getState() {
+  try { return JSON.parse(localStorage.getItem('dcState2')) || defaultState(); } catch(e) { return defaultState(); }
+}
+function defaultState() {
+  return { daniyal:{actual:0,wati:0,cheap:0,days:0}, waqas:{actual:0,wati:0,cheap:0,days:0}, asher:{actual:0,wati:0,cheap:0,days:0} };
+}
+function saveState(s) { try { localStorage.setItem('dcState2', JSON.stringify(s)); } catch(e) {} }
+
+function rs(n) {
+  n = Math.round(n);
+  if (Math.abs(n) >= 1000000) return 'Rs ' + (n/1000000).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1000) return 'Rs ' + Math.round(n/1000) + 'k';
+  return 'Rs ' + n;
+}
+function pct(n) { return Math.round(n) + '%'; }
+function clamp(v,a,b) { return Math.min(Math.max(v,a),b); }
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPin').value;
+  const err = document.getElementById('loginErr');
+  if (!u) { err.style.display='block'; err.textContent='Pehle naam select karo'; return; }
+  if (PINS[u] !== p) { err.style.display='block'; err.textContent='Galat PIN — dobara try karo'; return; }
+  err.style.display = 'none';
+  if (u === 'admin') { renderAdmin(); showPage('adminPage'); }
+  else { renderEmp(u); showPage('empPage'); }
+}
+
+function logout() { showPage('loginPage'); document.getElementById('loginPin').value = ''; }
+
+function renderAdmin() {
+  const state = getState();
+  const emps = ['daniyal','waqas','asher'];
+  let html = '';
+  emps.forEach(emp => {
+    const d = state[emp];
+    const actual = d.actual || 0;
+    const p = clamp((actual/MIN_T)*100, 0, 100);
+    const barCol = p >= 100 ? '#22c97a' : p >= 60 ? '#f0a500' : '#f05050';
+    html += `<div class="emp-item">
+      <div class="avatar" style="background:${AV_BG[emp]};color:${AV_COL[emp]}">${INITIALS[emp]}</div>
+      <div class="emp-info">
+        <div class="emp-name">${NAMES[emp]}</div>
+        <div class="emp-bar-wrap">
+          <div class="prog-bg"><div class="prog-fill" style="width:${p}%;background:${barCol}"></div></div>
+        </div>
+        <div class="emp-stats">
+          <span>${rs(actual)}</span>
+          <span>${pct(p)} of target</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('teamOverview').innerHTML = html;
+}
+
+function saveEntry() {
+  const emp = document.getElementById('entryEmp').value;
+  if (!emp) return;
+  const state = getState();
+  state[emp] = {
+    actual: parseFloat(document.getElementById('entryActual').value) || 0,
+    wati: parseFloat(document.getElementById('entryWati').value) || 0,
+    cheap: parseFloat(document.getElementById('entryCheap').value) || 0,
+    days: parseFloat(document.getElementById('entryDays').value) || 0
+  };
+  saveState(state);
+  const msg = document.getElementById('saveMsg');
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 3000);
+  renderAdmin();
+  document.getElementById('entryActual').value = '';
+  document.getElementById('entryWati').value = '';
+  document.getElementById('entryCheap').value = '';
+  document.getElementById('entryDays').value = '';
+}
+
+function resetMonth() {
+  if (confirm('Confirm? Sab employees ka data reset ho jaega — naya mahina shuru hoga.')) {
+    saveState(defaultState());
+    renderAdmin();
+    alert('Reset ho gaya!');
+  }
+}
+
+function renderEmp(emp) {
+  const state = getState();
+  const d = state[emp] || { actual:0, wati:0, cheap:0, days:0 };
+  const actual = d.actual||0, wati = d.wati||0, cheap = d.cheap||0, days = d.days||0;
+
+  document.getElementById('empNameTop').textContent = NAMES[emp];
+
+  const projected = days > 0 ? Math.round((actual/days)*30) : 0;
+  const targetDiff = actual - MIN_T;
+  const watiDiff = wati ? (actual - wati) : null;
+
+  document.getElementById('empMetrics').innerHTML = `
+    <div class="metric">
+      <div class="metric-label">Actual sale</div>
+      <div class="metric-value c-${actual>0?'green':'muted'}" style="font-size:16px">${rs(actual)}</div>
+      <div class="metric-sub c-muted">Is mahine abhi tak</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Target gap</div>
+      <div class="metric-value ${targetDiff>=0?'c-green':targetDiff>=-300000?'c-amber':'c-red'}" style="font-size:16px">${targetDiff>=0?'+':''}${rs(targetDiff)}</div>
+      <div class="metric-sub ${targetDiff>=0?'c-green':'c-muted'}">${targetDiff>=0?'Target se upar!':'Abhi baaki hai'}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">WATI vs actual</div>
+      <div class="metric-value ${watiDiff===null?'c-muted':watiDiff>=0?'c-blue':'c-amber'}" style="font-size:16px">${watiDiff===null?'—':(watiDiff>=0?'+':'')+rs(watiDiff)}</div>
+      <div class="metric-sub ${watiDiff===null?'c-muted':watiDiff>=0?'c-blue':'c-amber'}">${watiDiff===null?'Data nahi':watiDiff>=0?'Bonus milega!':'Rate se neeche'}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Month-end forecast</div>
+      <div class="metric-value ${projected>=MIN_T?'c-green':projected>0?'c-amber':'c-muted'}" style="font-size:16px">${projected>0?rs(projected):'—'}</div>
+      <div class="metric-sub ${projected>=MIN_T?'c-green':'c-muted'}">${days>0?(projected>=MIN_T?'Track pe ho':'Risk hai'):'Days enter karo'}</div>
+    </div>`;
+
+  const p1 = clamp((actual/MIN_T)*100, 0, 100);
+  const p2 = wati ? clamp((actual/wati)*100, 0, 100) : 0;
+  let nextM = null, prevT = 0, achievedM = null;
+  for (let m of MILESTONES) {
+    if (actual >= m.t) { achievedM = m; prevT = m.t; }
+    else if (!nextM) nextM = m;
+  }
+  const p3 = nextM ? clamp(((actual-prevT)/(nextM.t-prevT))*100, 0, 100) : 100;
+  const mIdx = nextM ? MILESTONES.indexOf(nextM) + 1 : 6;
+
+  document.getElementById('empBars').innerHTML = `
+    <div class="prog-block">
+      <div class="prog-header">
+        <span class="prog-name">Min target (1.5M)</span>
+        <span class="prog-pct">${pct(p1)}</span>
+      </div>
+      <div class="prog-bg"><div class="prog-fill" style="width:${p1}%;background:${p1>=100?'#22c97a':p1>=60?'#f0a500':'#f05050'}"></div></div>
+      <div class="prog-note">${p1>=100?'✓ Complete!':rs(MIN_T-actual)+' baaki raha hai'}</div>
+    </div>
+    ${wati ? `<div class="prog-block">
+      <div class="prog-header">
+        <span class="prog-name">WATI rate match</span>
+        <span class="prog-pct">${pct(p2)}</span>
+      </div>
+      <div class="prog-bg"><div class="prog-fill" style="width:${p2}%;background:${p2>=100?'#5b9cf6':'#f0a500'}"></div></div>
+      <div class="prog-note" style="color:${p2>=100?'#5b9cf6':'#f0a500'}">${p2>=100?'✓ WATI bonus eligible!':rs(wati-actual)+' baaki WATI match ke liye'}</div>
+    </div>` : ''}
+    <div class="prog-block">
+      <div class="prog-header">
+        <span class="prog-name">Next milestone ${nextM?'(M'+mIdx+')':'— sab complete!'}</span>
+        <span class="prog-pct">${pct(p3)}</span>
+      </div>
+      <div class="prog-bg"><div class="prog-fill" style="width:${p3}%;background:#22c97a"></div></div>
+      <div class="prog-note">${nextM?rs(nextM.t-actual)+' baaki — '+rs(nextM.b)+' bonus milega':'✓ Sab milestones complete!'}</div>
+    </div>
+    ${cheap > 30 ? `<div class="warn-box" style="display:block">⚠ Saste laptops ${Math.round(cheap)}% — 30% threshold cross! Milestone aur weekly bonus risk mein hai.</div>` : ''}`;
+
+  const comm = actual * 0.02;
+  const watiBonus = (wati && actual > wati) ? (actual - wati) * 0.5 : 0;
+  const mileBonus = (cheap > 30 || !achievedM) ? 0 : achievedM.b;
+  const total = 30000 + comm + watiBonus + mileBonus;
+
+  document.getElementById('empEarnings').innerHTML = `
+    <div class="card-row">
+      <span class="row-label">Fixed salary</span>
+      <span class="row-value">Rs 30,000</span>
+    </div>
+    <div class="card-row">
+      <span class="row-label">Commission (2%)</span>
+      <span class="row-value">${rs(Math.round(comm))}</span>
+    </div>
+    <div class="card-row">
+      <span class="row-label">WATI bonus (50% extra)</span>
+      <span class="row-value" style="color:${watiBonus>0?'#22c97a':'#f0a500'}">${watiBonus>0?rs(Math.round(watiBonus)):wati?'Nahi mila':'—'}</span>
+    </div>
+    <div class="card-row">
+      <span class="row-label">Milestone bonus</span>
+      <span class="row-value" style="color:${mileBonus>0?'#22c97a':cheap>30?'#f05050':'#8888a0'}">${mileBonus>0?rs(mileBonus):cheap>30?'Block (30% rule)':'Abhi nahi'}</span>
+    </div>
+    <div class="total-row">
+      <span class="total-label">Total estimate</span>
+      <span class="total-value">${rs(Math.round(total))}</span>
+    </div>`;
+}
+</script>
+</body>
+</html>
